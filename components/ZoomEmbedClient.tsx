@@ -59,6 +59,22 @@ export default function ZoomEmbedClient() {
   const [error, setError] = useState<string | null>(null);
   const [panel, setPanel] = useState("chat");
 
+  const formatError = (context: string, err: unknown) => {
+    if (err instanceof Error) {
+      return `${context}: ${err.message}`;
+    }
+
+    if (typeof err === "string") {
+      return `${context}: ${err}`;
+    }
+
+    try {
+      return `${context}: ${JSON.stringify(err)}`;
+    } catch {
+      return `${context}: Unknown error`;
+    }
+  };
+
   const meetingNumber =
     searchParams.get("meetingNumber") ??
     process.env.NEXT_PUBLIC_ZOOM_MEETING_NUMBER ??
@@ -80,17 +96,17 @@ export default function ZoomEmbedClient() {
   const joinMeeting = useCallback(async () => {
     const client = clientRef.current;
     if (!client) {
-      setError("Zoom client is not ready yet.");
+      setError("Join meeting: Zoom client is not ready yet.");
       return;
     }
 
     if (!meetingNumber) {
-      setError("Missing meeting number.");
+      setError("Join meeting: Missing meeting number.");
       return;
     }
 
     if (!signatureEndpoint) {
-      setError("Missing signature endpoint.");
+      setError("Join meeting: Missing signature endpoint.");
       return;
     }
 
@@ -117,12 +133,28 @@ export default function ZoomEmbedClient() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to fetch Zoom signature.");
+        const errorText = await res.text().catch(() => "");
+        throw new Error(
+          `Signature request failed (${res.status} ${res.statusText})${
+            errorText ? `: ${errorText}` : ""
+          }`,
+        );
       }
 
-      const { signature } = await res.json();
+      let signatureResponse: { signature?: string } | null = null;
+      try {
+        signatureResponse = await res.json();
+      } catch (err) {
+        throw new Error(
+          `Signature response is not valid JSON: ${formatError("parse", err)}`,
+        );
+      }
+
+      const signature = signatureResponse?.signature;
       if (!signature || typeof signature !== "string") {
-        throw new Error("Signature missing or invalid from endpoint.");
+        throw new Error(
+          "Signature missing or invalid from endpoint response.",
+        );
       }
       const joinPayload = {
         signature,
@@ -136,7 +168,7 @@ export default function ZoomEmbedClient() {
       setStatus("in-meeting");
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Failed to join meeting.");
+      setError(formatError("Join meeting failed", err));
     }
   }, [meetingNumber, meetingPassword, signatureEndpoint, userName]);
 
@@ -227,7 +259,7 @@ export default function ZoomEmbedClient() {
       }
 
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Failed to init Zoom.");
+      setError(formatError("Zoom init failed", err));
     });
 
     return () => {
@@ -258,7 +290,7 @@ export default function ZoomEmbedClient() {
       setStatus("ended");
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "Failed to leave meeting.");
+      setError(formatError("Leave meeting failed", err));
     }
   };
 
@@ -273,7 +305,7 @@ export default function ZoomEmbedClient() {
     try {
       await client.mute(mute);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to toggle mute.");
+      setError(formatError("Mute toggle failed", err));
     }
   };
 
@@ -288,7 +320,7 @@ export default function ZoomEmbedClient() {
     try {
       await client.stopAudio();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to stop audio.");
+      setError(formatError("Stop audio failed", err));
     }
   };
 
@@ -303,7 +335,7 @@ export default function ZoomEmbedClient() {
     try {
       await client.setViewType(view);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to change view.");
+      setError(formatError("Change view failed", err));
     }
   };
 
