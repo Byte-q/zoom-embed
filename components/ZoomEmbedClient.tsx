@@ -50,8 +50,6 @@ const statusVariants: Record<
 
 export default function ZoomEmbedClient() {
   const searchParams = useSearchParams();
-  const meetingRootRef = useRef<HTMLDivElement | null>(null);
-  const chatRootRef = useRef<HTMLDivElement | null>(null);
   const participantsRootRef = useRef<HTMLDivElement | null>(null);
   const clientRef = useRef<any>(null);
   const destroyClientRef = useRef<null | (() => void)>(null);
@@ -178,7 +176,12 @@ export default function ZoomEmbedClient() {
       null;
 
     const initZoom = async () => {
-      if (!meetingRootRef.current) {
+      const meetingRoot = document.getElementById("zoom-meeting-root");
+      const chatRoot = document.getElementById("zoom-chat-root");
+
+      if (!meetingRoot) {
+        setStatus("error");
+        setError("Zoom init failed: Missing #zoom-meeting-root element.");
         return;
       }
 
@@ -208,7 +211,7 @@ export default function ZoomEmbedClient() {
       client.on("connection-change", onConnectionChange);
 
       await client.init({
-        zoomAppRoot: meetingRootRef.current,
+        zoomAppRoot: meetingRoot,
         language: "en-US",
         patchJsMedia: true,
         customize: {
@@ -221,7 +224,7 @@ export default function ZoomEmbedClient() {
           chat: {
             popper: {
               disableDraggable: true,
-              anchorElement: chatRootRef.current ?? undefined,
+              anchorElement: chatRoot ?? undefined,
               placement: "right",
             },
           },
@@ -358,7 +361,7 @@ export default function ZoomEmbedClient() {
         <CardContent className="grid gap-4 pt-6 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="flex flex-col gap-3">
             <div className="text-sm font-medium">Stage</div>
-            <div ref={meetingRootRef} className="min-h-96 w-full" />
+            <div id="zoom-meeting-root" className="min-h-96 w-full" />
           </div>
           <div className="flex flex-col gap-3">
             <div className="text-sm font-medium">Live Panel</div>
@@ -369,7 +372,7 @@ export default function ZoomEmbedClient() {
                 <TabsTrigger value="resources">Resources</TabsTrigger>
               </TabsList>
               <TabsContent value="chat" className="space-y-2">
-                <div ref={chatRootRef} className="min-h-96 w-full" />
+                <div id="zoom-chat-root" className="min-h-96 w-full" />
                 <p className="text-sm text-muted-foreground">
                   Open Chat from the Zoom toolbar to display it here.
                 </p>
