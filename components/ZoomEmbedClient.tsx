@@ -218,47 +218,60 @@ export default function ZoomEmbedClient() {
         }
       };
 
-      client.on("connection-change", onConnectionChange);
-      console.log("[ZoomEmbed] initZoom: event handler attached");
+      try {
+        console.log("[ZoomEmbed] initZoom: attaching event handler");
+        client.on("connection-change", onConnectionChange);
+        console.log("[ZoomEmbed] initZoom: event handler attached");
+      } catch (err) {
+        setStatus("error");
+        setError(formatError("Zoom init failed (client.on)", err));
+        return;
+      }
 
-      console.log("[ZoomEmbed] initZoom: calling client.init");
-      await client.init({
-        zoomAppRoot: meetingRoot,
-        language: "en-US",
-        patchJsMedia: true,
-        customize: {
-          video: {
-            isResizable: false,
-            popper: {
-              disableDraggable: true,
-            },
-          },
-          chat: {
-            popper: {
-              disableDraggable: true,
-              anchorElement: chatRoot ?? undefined,
-              placement: "right",
-            },
-          },
-          participants: {
-            popper: {
-              disableDraggable: true,
-              anchorElement: participantsRootRef.current ?? undefined,
-              placement: "right",
-            },
-          },
-          meetingInfo: ["topic", "host", "mn"],
-          toolbar: {
-            buttons: [
-              {
-                text: "Resources",
-                onClick: () => setPanel("resources"),
+      try {
+        console.log("[ZoomEmbed] initZoom: calling client.init");
+        await client.init({
+          zoomAppRoot: meetingRoot,
+          language: "en-US",
+          patchJsMedia: true,
+          customize: {
+            video: {
+              isResizable: false,
+              popper: {
+                disableDraggable: true,
               },
-            ],
+            },
+            chat: {
+              popper: {
+                disableDraggable: true,
+                anchorElement: chatRoot ?? undefined,
+                placement: "right",
+              },
+            },
+            participants: {
+              popper: {
+                disableDraggable: true,
+                anchorElement: participantsRootRef.current ?? undefined,
+                placement: "right",
+              },
+            },
+            meetingInfo: ["topic", "host", "mn"],
+            toolbar: {
+              buttons: [
+                {
+                  text: "Resources",
+                  onClick: () => setPanel("resources"),
+                },
+              ],
+            },
           },
-        },
-      });
-      console.log("[ZoomEmbed] initZoom: client.init resolved");
+        });
+        console.log("[ZoomEmbed] initZoom: client.init resolved");
+      } catch (err) {
+        setStatus("error");
+        setError(formatError("Zoom init failed (client.init)", err));
+        return;
+      }
 
       if (isMounted) {
         setStatus("ready");
