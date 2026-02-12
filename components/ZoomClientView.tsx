@@ -25,10 +25,7 @@ export default function ZoomClientView() {
     searchParams.get("userName") ??
     process.env.NEXT_PUBLIC_ZOOM_USER_NAME ??
     "Student";
-  const signatureEndpoint =
-    searchParams.get("signatureEndpoint") ??
-    process.env.NEXT_PUBLIC_ZOOM_SIGNATURE_ENDPOINT ??
-    "/api/zoom/signature";
+  const signatureEndpoint = "/api/zoom/signature";
   const autoJoin = (searchParams.get("autoJoin") ?? "true") === "true";
   const sdkVersion = process.env.NEXT_PUBLIC_ZOOM_SDK_VERSION ?? "5.1.0";
   const role = useMemo(() => {
@@ -176,7 +173,7 @@ export default function ZoomClientView() {
           Join meeting
         </Button>
       </div>
-      <div id="zmmtg-root" className="min-h-[70vh] w-full" />
+      <div id="zmmtg-root" className="min-h-[70vh] max-h-screen w-full" />
       <div id="aria-notify-area" />
       {error ? (
         <div className="p-4">
