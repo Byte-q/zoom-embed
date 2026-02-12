@@ -85,10 +85,6 @@ export default function ZoomEmbedClient() {
     searchParams.get("userName") ??
     process.env.NEXT_PUBLIC_ZOOM_USER_NAME ??
     "Student";
-  const signatureEndpoint =
-    searchParams.get("signatureEndpoint") ??
-    process.env.NEXT_PUBLIC_ZOOM_SIGNATURE_ENDPOINT ??
-    "/api/zoom/signature";
   const autoJoin = (searchParams.get("autoJoin") ?? "false") === "true";
 
   const joinMeeting = useCallback(async () => {
@@ -103,11 +99,6 @@ export default function ZoomEmbedClient() {
       return;
     }
 
-    if (!signatureEndpoint) {
-      setError("Join meeting: Missing signature endpoint.");
-      return;
-    }
-
     setStatus("joining");
     setError(null);
 
@@ -119,7 +110,7 @@ export default function ZoomEmbedClient() {
         );
       }
 
-      const res = await fetch(signatureEndpoint, {
+      const res = await fetch('/api/zoom/signature', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -168,7 +159,7 @@ export default function ZoomEmbedClient() {
       setStatus("error");
       setError(formatError("Join meeting failed", err));
     }
-  }, [meetingNumber, meetingPassword, signatureEndpoint, userName]);
+  }, [meetingNumber, meetingPassword, userName]);
 
   useEffect(() => {
     let isMounted = true;

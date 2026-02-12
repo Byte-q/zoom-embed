@@ -15,6 +15,7 @@
     "@zoom/meetingsdk": "^5.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "jsrsasign": "^11.1.0",
     "next": "14.2.16",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -24,13 +25,12 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.16",
+    "@types/jsrsasign": "^10.5.15",
     "postcss": "^8.4.38",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.4.5"
