@@ -219,16 +219,6 @@ export default function ZoomEmbedClient() {
       };
 
       try {
-        console.log("[ZoomEmbed] initZoom: attaching event handler");
-        client.on("connection-change", onConnectionChange);
-        console.log("[ZoomEmbed] initZoom: event handler attached");
-      } catch (err) {
-        setStatus("error");
-        setError(formatError("Zoom init failed (client.on)", err));
-        return;
-      }
-
-      try {
         console.log("[ZoomEmbed] initZoom: calling client.init");
         await client.init({
           zoomAppRoot: meetingRoot,
@@ -270,6 +260,19 @@ export default function ZoomEmbedClient() {
       } catch (err) {
         setStatus("error");
         setError(formatError("Zoom init failed (client.init)", err));
+        return;
+      }
+
+      try {
+        console.log("[ZoomEmbed] initZoom: attaching event handler");
+        if (typeof client.on !== "function") {
+          throw new Error("client.on is not available after init.");
+        }
+        client.on("connection-change", onConnectionChange);
+        console.log("[ZoomEmbed] initZoom: event handler attached");
+      } catch (err) {
+        setStatus("error");
+        setError(formatError("Zoom init failed (client.on)", err));
         return;
       }
 
