@@ -214,6 +214,12 @@ export default function ZoomEmbedClient() {
             popper: {
               disableDraggable: true,
             },
+            viewSizes: {
+              default: {
+                width: 849,
+                height: 500
+              }
+            }
           },
             chat: {
               popper: {
