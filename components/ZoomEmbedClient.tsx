@@ -117,7 +117,7 @@ export default function ZoomEmbedClient() {
         },
         body: JSON.stringify({
           meetingNumber,
-          role: 0,
+          role: 1,
         }),
       });
 
