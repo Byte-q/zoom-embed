@@ -98,6 +98,13 @@ export default function ZoomEmbedClient() {
     setError(null);
 
     try {
+      const sdkKey = process.env.NEXT_PUBLIC_ZOOM_CLIENT_ID;
+      if (!sdkKey) {
+        throw new Error(
+          "Missing NEXT_PUBLIC_ZOOM_CLIENT_ID in zoom-embed env.",
+        );
+      }
+
       const res = await fetch(signatureEndpoint, {
         method: "POST",
         headers: {
@@ -114,13 +121,15 @@ export default function ZoomEmbedClient() {
       }
 
       const { signature } = await res.json();
-      const sdkKey = process.env.NEXT_PUBLIC_ZOOM_CLIENT_ID;
+      if (!signature || typeof signature !== "string") {
+        throw new Error("Signature missing or invalid from endpoint.");
+      }
       const joinPayload = {
         signature,
         meetingNumber,
         password: meetingPassword,
         userName,
-        ...(sdkKey ? { sdkKey } : {}),
+        sdkKey,
       };
 
       await client.join(joinPayload);
