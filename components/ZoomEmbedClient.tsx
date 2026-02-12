@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { get } from "http";
 
 type ZoomStatus =
   | "idle"
@@ -57,6 +56,7 @@ export default function ZoomEmbedClient() {
   const [status, setStatus] = useState<ZoomStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [panel, setPanel] = useState("chat");
+  const panelHeight = "h-[70vh] min-h-[420px] max-h-[720px]";
 
   const formatError = (context: string, err: unknown) => {
     if (err instanceof Error) {
@@ -209,12 +209,12 @@ export default function ZoomEmbedClient() {
           language: "en-US",
           patchJsMedia: true,
           customize: {
-            video: {
-              isResizable: false,
-              popper: {
-                disableDraggable: true,
-              },
+          video: {
+            isResizable: false,
+            popper: {
+              disableDraggable: true,
             },
+          },
             chat: {
               popper: {
                 disableDraggable: true,
@@ -360,7 +360,7 @@ export default function ZoomEmbedClient() {
   const inMeeting = status === "in-meeting" || status === "joining";
 
   return (
-    <div className="flex min-h-screen flex-col gap-4 p-4">
+    <div className="flex min-h-[90vh] max-h-screen flex-col gap-4 p-4">
       <Card>
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
@@ -372,27 +372,43 @@ export default function ZoomEmbedClient() {
           <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>
         </CardHeader>
         <Separator />
-        <CardContent className="grid gap-4 pt-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <CardContent className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,1fr)_380px]">
           <div className="flex flex-col gap-3">
             <div className="text-sm font-medium">Stage</div>
-            <div id="zoom-meeting-root" className="min-h-96 w-full" />
+            <div
+              className={`w-full overflow-hidden rounded-md border bg-muted/10 ${panelHeight}`}
+            >
+              <div id="zoom-meeting-root" className="h-full w-full" />
+            </div>
           </div>
           <div className="flex flex-col gap-3">
             <div className="text-sm font-medium">Live Panel</div>
-            <Tabs value={panel} onValueChange={setPanel}>
+            <Tabs value={panel} onValueChange={setPanel} className="flex-1">
               <TabsList>
                 <TabsTrigger value="chat">Chat</TabsTrigger>
                 <TabsTrigger value="participants">Participants</TabsTrigger>
                 <TabsTrigger value="resources">Resources</TabsTrigger>
               </TabsList>
               <TabsContent value="chat" className="space-y-2">
-                <div id="zoom-chat-root" className="min-h-96 w-full" />
+                <div
+                  className={`w-full overflow-hidden rounded-md border bg-muted/10 ${panelHeight}`}
+                >
+                  <div id="zoom-chat-root" className="h-full w-full" />
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Open Chat from the Zoom toolbar to display it here.
                 </p>
               </TabsContent>
               <TabsContent value="participants" className="space-y-2">
-                <div ref={participantsRootRef} id="zoom-participants-root" className="min-h-96 w-full" />
+                <div
+                  className={`w-full overflow-hidden rounded-md border bg-muted/10 ${panelHeight}`}
+                >
+                  <div
+                    ref={participantsRootRef}
+                    id="zoom-participants-root"
+                    className="h-full w-full"
+                  />
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Open Participants from the Zoom toolbar to display it here.
                 </p>
