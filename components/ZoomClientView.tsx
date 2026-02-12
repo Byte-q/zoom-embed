@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ZoomMtg } from "@zoom/meetingsdk";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +9,7 @@ type ZoomStatus = "idle" | "initializing" | "joining" | "in-meeting" | "error";
 
 export default function ZoomClientView() {
   const searchParams = useSearchParams();
+  const sdkRef = useRef<any>(null);
   const [status, setStatus] = useState<ZoomStatus>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +53,17 @@ export default function ZoomClientView() {
     }
   };
 
+  const loadSdk = useCallback(async () => {
+    if (sdkRef.current) {
+      return sdkRef.current;
+    }
+
+    const { ZoomMtg } = await import("@zoom/meetingsdk");
+    // const ZoomMtg = (mod as any).ZoomMtg ?? mod.default ?? mod;
+    sdkRef.current = ZoomMtg;
+    return ZoomMtg;
+  }, []);
+
   const joinMeeting = useCallback(async () => {
     if (!meetingNumber) {
       setError("Join meeting: Missing meeting number.");
@@ -68,6 +79,7 @@ export default function ZoomClientView() {
     setError(null);
 
     try {
+      const ZoomMtg = await loadSdk();
       const res = await fetch(signatureEndpoint, {
         method: "POST",
         headers: {
@@ -117,12 +129,20 @@ export default function ZoomClientView() {
       setStatus("error");
       setError(formatError("Join meeting failed", err));
     }
-  }, [meetingNumber, meetingPassword, role, signatureEndpoint, userName]);
+  }, [
+    loadSdk,
+    meetingNumber,
+    meetingPassword,
+    role,
+    signatureEndpoint,
+    userName,
+  ]);
 
-  const initClient = useCallback(() => {
+  const initClient = useCallback(async () => {
     setStatus("initializing");
     setError(null);
 
+    const ZoomMtg = await loadSdk();
     ZoomMtg.setZoomJSLib(`https://source.zoom.us/${sdkVersion}/lib`, "/av");
     ZoomMtg.preLoadWasm();
     ZoomMtg.prepareWebSDK();
@@ -137,14 +157,14 @@ export default function ZoomClientView() {
         setError(formatError("Zoom init failed", err));
       },
     });
-  }, [joinMeeting]);
+  }, [joinMeeting, loadSdk, sdkVersion]);
 
   useEffect(() => {
     if (!autoJoin) {
       return;
     }
 
-    initClient();
+    void initClient();
   }, [autoJoin, initClient]);
 
   return (
