@@ -146,6 +146,8 @@ export default function ZoomClientView() {
     ZoomMtg.setZoomJSLib(`https://source.zoom.us/${sdkVersion}/lib`, "/av");
     ZoomMtg.preLoadWasm();
     ZoomMtg.prepareWebSDK();
+    ZoomMtg.i18n.load("en-US");
+    ZoomMtg.i18n.reload("en-US");
 
     ZoomMtg.init({
       leaveUrl: window.location.href,
