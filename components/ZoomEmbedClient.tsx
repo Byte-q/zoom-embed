@@ -176,8 +176,13 @@ export default function ZoomEmbedClient() {
       null;
 
     const initZoom = async () => {
+      console.log("[ZoomEmbed] initZoom: start");
       const meetingRoot = document.getElementById("zoom-meeting-root");
       const chatRoot = document.getElementById("zoom-chat-root");
+      console.log("[ZoomEmbed] initZoom: elements", {
+        meetingRoot: !!meetingRoot,
+        chatRoot: !!chatRoot,
+      });
 
       if (!meetingRoot) {
         setStatus("error");
@@ -187,14 +192,19 @@ export default function ZoomEmbedClient() {
 
       setStatus("initializing");
       setError(null);
+      console.log("[ZoomEmbed] initZoom: importing SDK");
 
       const ZoomMtgEmbedded = (await import("@zoom/meetingsdk/embedded"))
         .default;
+      console.log("[ZoomEmbed] initZoom: SDK imported", {
+        hasCreateClient: typeof ZoomMtgEmbedded?.createClient === "function",
+      });
       if (!isMounted) {
         return;
       }
 
       const client = ZoomMtgEmbedded.createClient();
+      console.log("[ZoomEmbed] initZoom: client created", !!client);
       clientRef.current = client;
       destroyClientRef.current = ZoomMtgEmbedded.destroyClient;
 
@@ -209,7 +219,9 @@ export default function ZoomEmbedClient() {
       };
 
       client.on("connection-change", onConnectionChange);
+      console.log("[ZoomEmbed] initZoom: event handler attached");
 
+      console.log("[ZoomEmbed] initZoom: calling client.init");
       await client.init({
         zoomAppRoot: meetingRoot,
         language: "en-US",
@@ -246,12 +258,14 @@ export default function ZoomEmbedClient() {
           },
         },
       });
+      console.log("[ZoomEmbed] initZoom: client.init resolved");
 
       if (isMounted) {
         setStatus("ready");
       }
 
       if (autoJoin) {
+        console.log("[ZoomEmbed] initZoom: autoJoin true");
         await joinMeeting();
       }
     };
