@@ -216,8 +216,8 @@ export default function ZoomEmbedClient() {
             },
             viewSizes: {
               default: {
-                width: 500,
-                height: 500
+                width: 849,
+                height: 400,
               }
             }
           },
