@@ -55,5 +55,5 @@ export async function POST(req: NextRequest) {
     clientSecret,
   );
 
-  return NextResponse.json({ signature: MEETING_SDK_JWT });
+  return NextResponse.json({ signature: MEETING_SDK_JWT, clientId });
 }

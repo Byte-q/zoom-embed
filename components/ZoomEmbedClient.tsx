@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { get } from "http";
 
 type ZoomStatus =
   | "idle"
@@ -86,6 +87,7 @@ export default function ZoomEmbedClient() {
     process.env.NEXT_PUBLIC_ZOOM_USER_NAME ??
     "Student";
   const autoJoin = (searchParams.get("autoJoin") ?? "false") === "true";
+  const role = parseInt(searchParams.get("role") || '1');
 
   const joinMeeting = useCallback(async () => {
     const client = clientRef.current;
@@ -103,13 +105,6 @@ export default function ZoomEmbedClient() {
     setError(null);
 
     try {
-      const sdkKey = process.env.NEXT_PUBLIC_ZOOM_CLIENT_ID;
-      if (!sdkKey) {
-        throw new Error(
-          "Missing NEXT_PUBLIC_ZOOM_CLIENT_ID in zoom-embed env.",
-        );
-      }
-
       const res = await fetch('/api/zoom/signature', {
         method: "POST",
         headers: {
@@ -117,7 +112,7 @@ export default function ZoomEmbedClient() {
         },
         body: JSON.stringify({
           meetingNumber,
-          role: 1,
+          role
         }),
       });
 
@@ -130,7 +125,7 @@ export default function ZoomEmbedClient() {
         );
       }
 
-      let signatureResponse: { signature?: string } | null = null;
+      let signatureResponse: { signature?: string, clientId?: string } | null = null;
       try {
         signatureResponse = await res.json();
       } catch (err) {
@@ -140,6 +135,7 @@ export default function ZoomEmbedClient() {
       }
 
       const signature = signatureResponse?.signature;
+      const clientId = signatureResponse?.clientId;
       if (!signature || typeof signature !== "string") {
         throw new Error(
           "Signature missing or invalid from endpoint response.",
@@ -150,7 +146,7 @@ export default function ZoomEmbedClient() {
         meetingNumber,
         password: meetingPassword,
         userName,
-        sdkKey,
+        sdkKey: clientId,
       };
 
       await client.join(joinPayload);
@@ -170,10 +166,7 @@ export default function ZoomEmbedClient() {
       console.log("[ZoomEmbed] initZoom: start");
       const meetingRoot = document.getElementById("zoom-meeting-root");
       const chatRoot = document.getElementById("zoom-chat-root");
-      console.log("[ZoomEmbed] initZoom: elements", {
-        meetingRoot: !!meetingRoot,
-        chatRoot: !!chatRoot,
-      });
+      const participantsRoot = document.getElementById("zoom-participants-root");
 
       if (!meetingRoot) {
         setStatus("error");
@@ -225,14 +218,14 @@ export default function ZoomEmbedClient() {
             chat: {
               popper: {
                 disableDraggable: true,
-                anchorElement: chatRoot ?? undefined,
+                anchorElement: chatRoot,
                 placement: "right",
               },
             },
             participants: {
               popper: {
                 disableDraggable: true,
-                anchorElement: participantsRootRef.current ?? undefined,
+                anchorElement: participantsRoot,
                 placement: "right",
               },
             },
@@ -399,7 +392,7 @@ export default function ZoomEmbedClient() {
                 </p>
               </TabsContent>
               <TabsContent value="participants" className="space-y-2">
-                <div ref={participantsRootRef} className="min-h-96 w-full" />
+                <div ref={participantsRootRef} id="zoom-participants-root" className="min-h-96 w-full" />
                 <p className="text-sm text-muted-foreground">
                   Open Participants from the Zoom toolbar to display it here.
                 </p>
