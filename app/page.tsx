@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import ZoomEmbedClient from "@/components/ZoomEmbedClient";
+import ZoomClientView from "@/components/ZoomClientView";
 
 export default function Page() {
   return (
     <Suspense fallback={<>...</>}>
-      <ZoomEmbedClient />
+      <ZoomClientView />
     </Suspense>
   );
 }
