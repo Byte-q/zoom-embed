@@ -24,10 +24,10 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: `
               default-src 'self';
-              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.zoom.us https://vercel.live https://*.stream-io-video.com;
-              frame-src 'self' https://*.zoom.us https://*.zoom.com https://*.vercel.live https://vercel.live/ https://*.stream-io-video.com https://zoom-embed.vercel.app/;
-              connect-src 'self' https://*.zoom.us wss://*.zoom.us https://*.stream-io-video.com;
-              img-src 'self' data: blob: https://*.zoom.us;
+              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.zoom.us https://zoom.us https://zoom.com https://vercel.live https://*.stream-io-video.com;
+              frame-src 'self' https://*.zoom.us https://zoom.us https://zoom.com https://*.zoom.com https://*.vercel.live https://vercel.live/ https://*.stream-io-video.com https://zoom-embed.vercel.app/;
+              connect-src 'self' https://*.zoom.us wss://*.zoom.us https://*.stream-io-video.com https://zoom.us https://zoom.com https://vercel.live https://*.vercel.live;
+              img-src 'self' data: blob: https://*.zoom.us https://zoom.us https://zoom.com https://*.vercel.live https://vercel.live/ https://*.stream-io-video.com;
               style-src 'self' 'unsafe-inline';
             `.replace(/\n/g, ""),
           },
