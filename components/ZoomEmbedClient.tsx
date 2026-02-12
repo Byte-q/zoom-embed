@@ -225,7 +225,7 @@ export default function ZoomEmbedClient() {
               popper: {
                 disableDraggable: true,
                 anchorElement: chatRoot,
-                placement: "right",
+                placement: "top",
               },
             },
             participants: {
