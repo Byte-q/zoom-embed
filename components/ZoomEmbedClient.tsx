@@ -216,7 +216,7 @@ export default function ZoomEmbedClient() {
             },
             viewSizes: {
               default: {
-                width: 849,
+                width: 500,
                 height: 500
               }
             }
@@ -225,7 +225,7 @@ export default function ZoomEmbedClient() {
               popper: {
                 disableDraggable: true,
                 anchorElement: chatRoot,
-                placement: "top",
+                placement: "right-end",
               },
             },
             participants: {
