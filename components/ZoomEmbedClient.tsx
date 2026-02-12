@@ -98,7 +98,7 @@ export default function ZoomEmbedClient() {
     setError(null);
 
     try {
-      const res = await fetch(signatureEndpoint, {
+      const res = await fetch(`https://ola.simplixin.com/${signatureEndpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
