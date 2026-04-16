@@ -25,7 +25,10 @@ export default function ZoomClientView() {
     searchParams.get("userName") ??
     process.env.NEXT_PUBLIC_ZOOM_USER_NAME ??
     "Student";
-  const signatureEndpoint = "/api/zoom/signature";
+  const access_token = 
+    searchParams.get("a_t");
+  
+  const signatureEndpoint = "https://zqxjgfychbrjfqeoxewi.supabase.co/functions/v1/zoom-jwt-signature";
   const autoJoin = (searchParams.get("autoJoin") ?? "true") === "true";
   const sdkVersion = process.env.NEXT_PUBLIC_ZOOM_SDK_VERSION ?? "5.1.0";
   const role = useMemo(() => {
@@ -81,6 +84,7 @@ export default function ZoomClientView() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${access_token}`,
         },
         body: JSON.stringify({
           meetingNumber,
